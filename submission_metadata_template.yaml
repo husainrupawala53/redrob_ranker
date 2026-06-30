@@ -1,0 +1,100 @@
+# Redrob Hackathon — Submission Metadata
+
+# ============================================================================
+# Team identity
+# ============================================================================
+team_name: "Logic legion"  
+
+primary_contact:
+  name: "Husain"                   
+  email: "your@email.com"          
+  phone: "+91-7046217252"          
+
+team_members:
+  - name: "Husain"                 
+    email: "husainrupawala5253@gmail.com"       
+    role: "ML Engineer"
+
+# ============================================================================
+# Code and reproducibility
+# ============================================================================
+github_repo: "https://github.com/husainrupawala53/redrob_ranker"
+
+
+sandbox_link: "https://huggingface.co/spaces/husainrupawala5253/redrob-ranker"
+
+
+reproduce_command: "python src/convert_to_csv.py && python src/ranker.py"
+
+
+# ============================================================================
+# Compute environment
+# ============================================================================
+compute:
+  platform: "Windows Local Machine"
+  cpu_cores: 10                      
+  ram_gb: 16                      
+  python_version: "3.11"              
+  os: "Windows 11"                   
+  uses_gpu_for_inference: false      
+  has_network_during_ranking: false   
+  pre_computation_required: false     
+  pre_computation_time_minutes: 0
+
+# ============================================================================
+# AI tools declaration
+# ============================================================================
+ai_tools_used:
+  - "Claude"
+
+ai_usage_summary: |
+  Used Claude for architecture design, code generation, and iterative
+  improvement of the ranking pipeline. Claude assisted with:
+  - designing the two-stage ranker (fast filter + weighted scorer)
+  - generating and debugging all Python code (convert_to_csv.py, ranker.py)
+  - analysing and integrating improvement suggestions (v2 changes)
+  No candidate data was fed to any LLM during ranking.
+  All ranking logic runs fully offline on CPU.
+
+# ============================================================================
+# Approach summary
+# ============================================================================
+methodology_summary: |
+  Two-stage rule-based ranker with semantic career relevance.
+
+  Stage 1 (fast filter): boolean pandas masks reduce 100,000 candidates
+  to ~10,000 using hard disqualifiers — minimum experience, recency,
+  and response rate thresholds.
+
+  Stage 2 (full scoring): nine weighted components combined into a
+  final score (weights sum to 1.0):
+    - AI skill count from pre-defined AI_CORE term set (22%)
+    - Verified Redrob platform assessment scores (9%)
+    - TF-IDF cosine similarity of last 3 career roles vs JD text (22%)
+    - Months spent in AI-titled roles — catches semantic gap trap (4%)
+    - Years of experience vs JD target of 5-9 years, sigmoid curve (13%)
+    - Availability composite: recency × recruiter response rate,
+      multiplicative interaction + interview completion + notice period (15%)
+    - Salary compatibility vs estimated Series A budget 35-55 LPA (4%)
+    - Education tier + GitHub activity score (6%)
+    - Market demand: saved_by_recruiters + search_appearance (5%)
+
+  Key design decisions:
+  - TF-IDF on career text defeats the keyword stuffing trap
+    (Marketing Manager with AI skills scores low on career relevance)
+  - Recency × RRR multiplication defeats ghost candidate trap
+  - ai_months_total defeats semantic gap trap
+  - open_to_work=False applies a 0.5 multiplier, not disqualification
+  - No network calls at ranking time — fully reproducible on CPU
+
+  Runtime: ~60 seconds for 100K candidates on CPU.
+
+# ============================================================================
+# Declarations
+# ============================================================================
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: false    
+  reproduction_tested: true
